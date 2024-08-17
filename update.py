@@ -7,6 +7,7 @@ import webbrowser
 from zipfile import ZipFile
 from subprocess import Popen
 from typing import Callable
+import requests
 
 # fille name
 DOWNLOAD_FILENAME = 'VRCT.zip'
