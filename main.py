@@ -39,18 +39,22 @@ progressbar.set(0)  # 0%の位置に設定
 label.configure(text="Downloading...")
 
 def downloadCallback(values):
-    label.configure(text=f"Downloading files... {values[0]/values[1]*100:.2f}%({values[0]}/{values[1]})")
+    label.configure(text=f"Downloading files... {values[0]/values[1]*100:.2f}%({values[0]//1000}/{values[1]//1000})")
     progressbar.set(values[0]/values[1])
 
 def extractCallback(values):
     label.configure(text=f"Extracting files... {values[0]/values[1]*100:.2f}%({values[0]}/{values[1]})")
     progressbar.set(values[0]/values[1])
 
-def removeCallback():
-    label.configure(text="Removing old files...")
+def removeCallback(value):
+    progressbar.configure(mode="indeterminnate")
+    progressbar.start()
+    label.configure(text=f"Removing old files... {value}")
 
-def copyCallback():
-    label.configure(text="Copying new files...")
+def copyCallback(value):
+    progressbar.configure(mode="indeterminnate")
+    progressbar.start()
+    label.configure(text=f"Copying new files... {value}")
 
 def successCallback():
     label.configure(text="Success!")

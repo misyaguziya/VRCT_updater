@@ -18,21 +18,37 @@ TMP_DIR_NAME = 'tmp_update'
 GITHUB_URL = "https://api.github.com/repos/misyaguziya/VRCT/releases/latest"
 BOOTH_URL = "https://misyaguziya.booth.pm/"
 
-# 削除しないファイル
-EXCLUDE_FILES = ["logs", "config.json", "weights", "update.exe", TMP_DIR_NAME]
+# 削除しないデータ
+EXCLUDE_DATA = ["config.json", "update.exe", "logs", "weights", TMP_DIR_NAME]
 
-def removeFiles(root_dir):
+def removeFiles(root_dir, callback=None):
     for file in os.listdir(root_dir):
-        if file in EXCLUDE_FILES:
+        if file in EXCLUDE_DATA:
             continue
+
+        if isinstance(callback, Callable):
+            callback(file)
+        print("removeFiles", file)
+
         path = os.path.join(root_dir, file)
         if os.path.isdir(path):
             shutil.rmtree(path)
         else:
             os.remove(path)
 
-def copyFiles(root_dir):
-    shutil.copytree(os.path.join(root_dir, TMP_DIR_NAME), root_dir, dirs_exist_ok=True)
+def copyFiles(root_dir, callback=None):
+    tmp_path = os.path.join(root_dir, TMP_DIR_NAME)
+    for root, dirs, files in os.walk(tmp_path):
+        for dir in dirs:
+            os.makedirs(os.path.join(root_dir, os.path.relpath(os.path.join(root, dir), tmp_path)), exist_ok=True)
+            print("copytreeWithCallback", os.path.join(root_dir, os.path.relpath(os.path.join(root, dir), tmp_path)))
+        for file in files:
+            src_file = os.path.join(root, file)
+            dst_file = os.path.join(root_dir, os.path.relpath(src_file, tmp_path))
+            shutil.copy2(src_file, dst_file)
+            if callback:
+                callback(file)
+            print("copytreeWithCallback", dst_file)
     shutil.rmtree(os.path.join(root_dir, TMP_DIR_NAME))
 
 def downloadFile(url, root_dir, callback_download=None, callback_extract=None):
@@ -44,7 +60,7 @@ def downloadFile(url, root_dir, callback_download=None, callback_extract=None):
         file_size = int(res.headers.get('content-length', 0))
         total_chunk = 0
         with open(os.path.join(tmp_path, DOWNLOAD_FILENAME), 'wb') as file:
-            for chunk in res.iter_content(chunk_size=1024*100):
+            for chunk in res.iter_content(chunk_size=1024*1000):
                 file.write(chunk)
                 total_chunk += len(chunk)
                 if isinstance(callback_download, Callable):
@@ -65,12 +81,8 @@ def update(callback_download=None, callback_extract=None, callback_remove=None, 
     try:
         root_dir = os.path.dirname(sys.executable)
         downloadFile(GITHUB_URL, root_dir, callback_download, callback_extract)
-        if isinstance(callback_remove, Callable):
-            callback_remove()
-        removeFiles(root_dir)
-        if isinstance(callback_copy, Callable):
-            callback_copy()
-        copyFiles(root_dir)
+        removeFiles(root_dir, callback_remove)
+        copyFiles(root_dir, callback_copy)
         if isinstance(callback_success, Callable):
             callback_success()
         Popen(os.path.join(root_dir, START_EXE_NAME))
@@ -85,7 +97,7 @@ def update(callback_download=None, callback_extract=None, callback_remove=None, 
 if __name__ == '__main__':
     root_dir = os.path.dirname(sys.executable)
     downloadFile(GITHUB_URL, root_dir, lambda x: print(f"downloaded {x[0]}/{x[1]}"), lambda x: print(f"extracted {x[0]}/{x[1]}%"))
-    removeFiles(root_dir)
-    copyFiles(root_dir)
+    removeFiles(root_dir, lambda x: print(f"removeFiles {x}"))
+    copyFiles(root_dir, lambda x: print(f"copyFiles {x}"))
     Popen(os.path.join(root_dir, START_EXE_NAME))
     webbrowser.open(BOOTH_URL)
