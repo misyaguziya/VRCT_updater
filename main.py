@@ -18,12 +18,6 @@ def downloadCallback(values):
 def extractCallback(values):
     updating_window.updateDownloadProgress(values, "extracting")
 
-def removeCallback(values):
-    updating_window.updateDownloadProgress(values, "removing")
-
-def copyCallback(values):
-    updating_window.updateDownloadProgress(values, "copying")
-
 def restartCallback():
     updating_window.updateDownloadProgress([], "restarting")
 
@@ -33,7 +27,11 @@ def quitCallback():
 
 th_update = Thread(
     target=update,
-    args=(downloadCallback, extractCallback, removeCallback, copyCallback, restartCallback, quitCallback)
+    args=(
+        downloadCallback,
+        extractCallback,
+        restartCallback,
+        quitCallback)
     )
 th_update.daemon = True
 th_update.start()
