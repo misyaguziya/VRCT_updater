@@ -1,1 +1,1 @@
-pyinstaller --onefile main.py --name update --add-data "./img:img/" --add-data ".venv\Lib\site-packages\PIL;PIL/"
+pyinstaller --onefile main.py --name update --add-data "./img:img/"
