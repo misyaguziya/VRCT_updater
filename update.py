@@ -27,7 +27,7 @@ def removeFiles(root_dir, callback=None):
             continue
 
         if isinstance(callback, Callable):
-            callback(file)
+            callback([file])
         print("removeFiles", file)
 
         path = os.path.join(root_dir, file)
@@ -47,7 +47,7 @@ def copyFiles(root_dir, callback=None):
             dst_file = os.path.join(root_dir, os.path.relpath(src_file, tmp_path))
             shutil.copy2(src_file, dst_file)
             if callback:
-                callback(file)
+                callback([file])
             print("copytreeWithCallback", dst_file)
     shutil.rmtree(os.path.join(root_dir, TMP_DIR_NAME))
 
@@ -77,21 +77,27 @@ def downloadFile(url, root_dir, callback_download=None, callback_extract=None):
                     callback_extract([extracted_files, total_files])
                 print(f"extracted {extracted_files}/{total_files}")
 
-def update(callback_download=None, callback_extract=None, callback_remove=None, callback_copy=None, callback_success=None, callback_quit=None):
+def restart(callback_restart=None):
+    if isinstance(callback_restart, Callable):
+        callback_restart()
+    Popen(os.path.join(os.path.dirname(sys.executable), START_EXE_NAME))
+
+def quit(callback_quit=None):
+    if isinstance(callback_quit, Callable):
+        callback_quit()
+
+def update(callback_download=None, callback_extract=None, callback_remove=None, callback_copy=None, callback_restart=None, callback_quit=None):
     try:
         root_dir = os.path.dirname(sys.executable)
         downloadFile(GITHUB_URL, root_dir, callback_download, callback_extract)
         removeFiles(root_dir, callback_remove)
         copyFiles(root_dir, callback_copy)
-        if isinstance(callback_success, Callable):
-            callback_success()
-        Popen(os.path.join(root_dir, START_EXE_NAME))
+        restart(callback_restart)
     except Exception as e:
         print(e)
         webbrowser.open(BOOTH_URL)
     finally:
-        if isinstance(callback_quit, Callable):
-            callback_quit()
+        quit(callback_quit)
     return True
 
 if __name__ == '__main__':
