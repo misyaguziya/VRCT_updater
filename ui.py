@@ -1,3 +1,4 @@
+import time
 from customtkinter import CTkImage, CTkLabel, CTkToplevel, CTkProgressBar, CTkFrame
 from ui_utils import getImageFileFromUiUtils, setGeometryToCenterOfScreen, fadeInAnimation, generateGradientColor, getImagePath
 
@@ -9,8 +10,6 @@ class UpdatingWindow(CTkToplevel):
         self.configure(fg_color="#292a2d")
         self.title("Updating...")
         self.after(200, lambda: self.iconbitmap(getImagePath("vrct_logo_mark_black.ico")))
-        # self.protocol("WM_DELETE_WINDOW", vrct_gui._quitVRCT)
-        # self.wm_attributes("-toolwindow", True)
         self.is_showed_downloading_process = False
         self.is_showed_unpackaging_process = False
         BG_WIDTH= 300
@@ -105,11 +104,27 @@ class UpdatingWindow(CTkToplevel):
             fg_color=self.BG_HEX_COLOR,
             image=CTkImage(self.vrct_update_process_img, size=(self.vrct_update_process_img.width, self.vrct_update_process_img.height))
         )
-        self.vrct_update_process_img_label.place(x=87, y=300, anchor="nw")
+        self.vrct_update_process_img_label.place(x=150, y=330, anchor="center")
 
+        self.vrct_update_process_action = CTkLabel(
+            self.updating_background,
+            text=None,
+            height=0,
+            fg_color=self.BG_HEX_COLOR,
+        )
+        self.vrct_update_process_action.place(x=150, y=280, anchor="center")
 
-    def updateDownloadProgress(self, progress:float, progress_type:str):
+        self.vrct_update_process_text = CTkLabel(
+            self.updating_background,
+            text=None,
+            height=0,
+            fg_color=self.BG_HEX_COLOR,
+        )
+        self.vrct_update_process_text.place(x=150, y=300, anchor="center")
+
+    def updateDownloadProgress(self, values:list, progress_type:str):
         if progress_type == "downloading":
+            progress = values[0] / values[1]
             if self.is_showed_downloading_process is False:
                 self.downloading_unpackaging_d_label.place(x=50, y=56, anchor="nw")
                 self.is_showed_downloading_process = True
@@ -124,9 +139,12 @@ class UpdatingWindow(CTkToplevel):
             chato_x = self.PROGRESSBAR_X + (progress * self.PROGRESSBAR_WIDTH)
             self.chato_delivering_img_label.place(x=chato_x)
             self.progressbar.set(progress)
+            self.vrct_update_process_action.configure(text="Downloading...")
+            self.vrct_update_process_text.configure(text=f"{int(progress * 100)}% ({values[0]//1000//1000}MB/{values[1]//1000//1000}MB)")
             self.update_idletasks()
 
         elif progress_type == "extracting":
+            progress = values[0] / values[1]
             if self.is_showed_unpackaging_process is False:
                 self.chato_delivering_img_label.place_forget()
                 self.downloading_unpackaging_u_label.place(x=50, y=56, anchor="nw")
@@ -137,8 +155,25 @@ class UpdatingWindow(CTkToplevel):
             chato_x = (self.PROGRESSBAR_X - 3) + (self.PROGRESSBAR_WIDTH - (progress * self.PROGRESSBAR_WIDTH))
             self.chato_unpackaging_img_label.place(x=chato_x)
             self.progressbar.set(1 - progress)
+            self.vrct_update_process_action.configure(text="Extracting...")
+            self.vrct_update_process_text.configure(text=f"{int(progress * 100)}% ({values[0]}/{values[1]})")
             self.update_idletasks()
 
+        elif progress_type == "removing":
+            self.vrct_update_process_action.configure(text="Removing...")
+            self.vrct_update_process_text.configure(text=f"{values[0]}")
+            self.update_idletasks()
+
+        elif progress_type == "copying":
+            self.vrct_update_process_action.configure(text="Copying...")
+            self.vrct_update_process_text.configure(text=f"{values[0]}")
+            self.update_idletasks()
+
+        elif progress_type == "restarting":
+            self.vrct_update_process_action.configure(text="Restarting...")
+            self.vrct_update_process_text.configure(text="")
+            self.update_idletasks()
+            time.sleep(1)
 
     def showUpdatingWindow(self):
         self.attributes("-alpha", 0)
