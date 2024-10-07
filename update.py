@@ -14,7 +14,7 @@ DOWNLOAD_FILENAME = 'VRCT.zip'
 START_EXE_NAME = 'VRCT.exe'
 
 # ファイルのダウンロード
-GITHUB_URL = "https://api.github.com/repos/misyaguziya/VRCT_update_test/releases/latest"
+GITHUB_URL = "https://api.github.com/repos/misyaguziya/VRCT/releases/latest"
 BOOTH_URL = "https://misyaguziya.booth.pm/"
 
 # 削除するファイル
