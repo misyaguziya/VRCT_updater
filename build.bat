@@ -1,1 +1,1 @@
-pyinstaller --onefile main.py --name update --add-data "./img:img/"
+pyinstaller --windowed --clean --noconfirm --onefile main.py --name update --add-data "./img:img/" --icon "./img/vrct_logo_mark_black.ico"
