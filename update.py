@@ -20,6 +20,9 @@ BOOTH_URL = "https://misyaguziya.booth.pm/"
 # 削除するファイル
 DELETION_FILES = ["VRCT.exe", "backend.exe", "_internal"]
 
+def taskKill():
+    os.system(f"taskkill /F /IM {START_EXE_NAME}")
+
 def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
     res = requests.get(url)
     assets = res.json()['assets']
@@ -77,15 +80,22 @@ def quit(callback_quit=None):
         callback_quit()
 
 def update(callback_download=None, callback_extract=None, callback_restart=None, callback_quit=None):
-    try:
-        root_dir = os.path.dirname(sys.executable)
-        updateProcess(GITHUB_URL, root_dir, callback_download, callback_extract)
-        restart(callback_restart)
-    except Exception as e:
-        print(e)
-        webbrowser.open(BOOTH_URL)
-    finally:
-        quit(callback_quit)
+    # task kill update program
+    taskKill()
+    # try update VRCT at most 5 times
+    for _ in range(5):
+        try:
+            root_dir = os.path.dirname(sys.executable)
+            updateProcess(GITHUB_URL, root_dir, callback_download, callback_extract)
+            restart(callback_restart)
+            break
+        except Exception:
+            import traceback
+            with open('error.log', 'a') as f:
+                traceback.print_exc(file=f)
+        finally:
+            webbrowser.open(BOOTH_URL)
+    quit(callback_quit)
     return True
 
 if __name__ == '__main__':
