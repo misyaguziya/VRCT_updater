@@ -14,11 +14,14 @@ DOWNLOAD_FILENAME = 'VRCT.zip'
 START_EXE_NAME = 'VRCT.exe'
 
 # ファイルのダウンロード
-GITHUB_URL = "https://api.github.com/repos/misyaguziya/VRCT_update_test/releases/latest"
+GITHUB_URL = "https://api.github.com/repos/misyaguziya/VRCT/releases/latest"
 BOOTH_URL = "https://misyaguziya.booth.pm/"
 
 # 削除するファイル
 DELETION_FILES = ["VRCT.exe", "backend.exe", "_internal"]
+
+def taskKill():
+    os.system(f"taskkill /F /IM {START_EXE_NAME}")
 
 def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
     res = requests.get(url)
@@ -67,6 +70,11 @@ def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
                     callback_extract([extracted_counter, total_files])
                 # print(f"extracted {extracted_counter}/{extracted_files}")
 
+def error(callback_error=None):
+    if isinstance(callback_error, Callable):
+        callback_error()
+    webbrowser.open(BOOTH_URL)
+
 def restart(callback_restart=None):
     if isinstance(callback_restart, Callable):
         callback_restart()
@@ -76,16 +84,23 @@ def quit(callback_quit=None):
     if isinstance(callback_quit, Callable):
         callback_quit()
 
-def update(callback_download=None, callback_extract=None, callback_restart=None, callback_quit=None):
-    try:
-        root_dir = os.path.dirname(sys.executable)
-        updateProcess(GITHUB_URL, root_dir, callback_download, callback_extract)
-        restart(callback_restart)
-    except Exception as e:
-        print(e)
-        webbrowser.open(BOOTH_URL)
-    finally:
-        quit(callback_quit)
+def update(callback_download=None, callback_extract=None, callback_error=None, callback_restart=None, callback_quit=None):
+    # task kill update program
+    taskKill()
+    # try update VRCT at most 5 times
+    for i in range(5):
+        try:
+            root_dir = os.path.dirname(sys.executable)
+            updateProcess(GITHUB_URL, root_dir, callback_download, callback_extract)
+            restart(callback_restart)
+            break
+        except Exception:
+            import traceback
+            with open('error.log', 'a') as f:
+                traceback.print_exc(file=f)
+        if i == 4:
+            error(callback_error)
+    quit(callback_quit)
     return True
 
 if __name__ == '__main__':
