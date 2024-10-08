@@ -18,6 +18,9 @@ def downloadCallback(values):
 def extractCallback(values):
     updating_window.updateDownloadProgress(values, "extracting")
 
+def errorCallback():
+    updating_window.updateDownloadProgress([], "error")
+
 def restartCallback():
     updating_window.updateDownloadProgress([], "restarting")
 
@@ -30,6 +33,7 @@ th_update = Thread(
     args=(
         downloadCallback,
         extractCallback,
+        errorCallback,
         restartCallback,
         quitCallback)
     )
