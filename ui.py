@@ -150,10 +150,23 @@ class UpdatingWindow(CTkToplevel):
             self.update_idletasks()
 
         elif progress_type == "restarting":
+            message = "Restarting"
+            for _ in range(5):
+                self.chato_unpackaging_img_label.place_forget()
+                self.vrct_update_process_text.configure(text=message)
+                self.update_idletasks()
+                message = message + "."
+                time.sleep(1)
+
+        elif progress_type == "error":
             self.chato_unpackaging_img_label.place_forget()
-            self.vrct_update_process_text.configure(text="Restarting...")
+            self.vrct_update_process_text.configure(text="Error! Can't Update software.")
             self.update_idletasks()
-            time.sleep(1)
+            time.sleep(5)
+            self.chato_unpackaging_img_label.place_forget()
+            self.vrct_update_process_text.configure(text="Please download the latest version from the website.")
+            self.update_idletasks()
+            time.sleep(5)
 
     def showUpdatingWindow(self):
         self.attributes("-alpha", 0)
