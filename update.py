@@ -5,9 +5,10 @@ import shutil
 import tempfile
 import webbrowser
 from zipfile import ZipFile
-from subprocess import Popen
+import subprocess
 from typing import Callable
 import requests
+import psutil
 
 # fille name
 DOWNLOAD_FILENAME = 'VRCT.zip'
@@ -21,7 +22,14 @@ BOOTH_URL = "https://misyaguziya.booth.pm/"
 DELETION_FILES = ["VRCT.exe", "backend.exe", "_internal"]
 
 def taskKill():
-    os.system(f"taskkill /F /IM {START_EXE_NAME}")
+    for proc in psutil.process_iter(['pid', 'name']):
+        try:
+            # プロセス名が一致する場合に終了
+            if proc.info['name'] == START_EXE_NAME:
+                proc.terminate()  # プロセスの終了を試みる
+                proc.wait()  # 終了を待機
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
 
 def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
     res = requests.get(url)
@@ -78,7 +86,7 @@ def error(callback_error=None):
 def restart(callback_restart=None):
     if isinstance(callback_restart, Callable):
         callback_restart()
-    Popen(os.path.join(os.path.dirname(sys.executable), START_EXE_NAME))
+    subprocess.Popen(os.path.join(os.path.dirname(sys.executable), START_EXE_NAME))
 
 def quit(callback_quit=None):
     if isinstance(callback_quit, Callable):

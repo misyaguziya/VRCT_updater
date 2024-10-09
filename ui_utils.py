@@ -2,6 +2,10 @@ from os import path as os_path
 from PIL import Image
 from time import sleep
 
+def getFontPath(file_name):
+    # root\font\file_name
+    return os_path.join(os_path.dirname(__file__), "font", file_name)
+
 def getImagePath(file_name):
     # root\img\file_name
     return os_path.join(os_path.dirname(__file__), "img", file_name)

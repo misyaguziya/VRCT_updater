@@ -1,9 +1,20 @@
 import time
-from customtkinter import CTkImage, CTkLabel, CTkToplevel, CTkProgressBar, CTkFrame
-from ui_utils import getImageFileFromUiUtils, setGeometryToCenterOfScreen, fadeInAnimation, generateGradientColor, getImagePath
+from customtkinter import CTkImage, CTkLabel, CTkProgressBar, CTkFrame, CTk
+from ui_utils import getImageFileFromUiUtils, setGeometryToCenterOfScreen, fadeInAnimation, generateGradientColor, getImagePath, getFontPath
+from PIL import ImageFont, ImageDraw, Image, ImageTk
 
-class UpdatingWindow(CTkToplevel):
-    def __init__(self, vrct_gui):
+def text_to_image(text:str, font:ImageFont, fg_color:str, bg_color:str):
+    image_width, image_height = 300, 12
+    image = Image.new("RGBA", (image_width, image_height), bg_color)
+    draw = ImageDraw.Draw(image)
+    bbox  = draw.textbbox((0, 0), text=text, font=font)
+    x = (image_width - bbox[2]) - 6
+    y = (image_height - bbox[3]) // 2
+    draw.text((x, y), text, font=font, fill=fg_color)
+    return ImageTk.PhotoImage(image)
+
+class UpdatingWindow(CTk):
+    def __init__(self):
         super().__init__()
         self.withdraw()
         self.overrideredirect(True)
@@ -15,6 +26,8 @@ class UpdatingWindow(CTkToplevel):
         BG_WIDTH= 300
         BG_HEIGHT= 350
         self.BG_HEX_COLOR = "#292a2d"
+        self.TEXT_HEX_COLOR = "#78797d"
+        self.font = ImageFont.truetype(getFontPath('Inter_18pt-Regular.ttf'), 12)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -112,7 +125,7 @@ class UpdatingWindow(CTkToplevel):
             height=0,
             fg_color=self.BG_HEX_COLOR,
         )
-        self.vrct_update_process_text.place(x=150, y=280, anchor="center")
+        self.vrct_update_process_text.place(x=150, y=340, anchor="center")
 
     def updateDownloadProgress(self, values:list, progress_type:str):
         if progress_type == "downloading":
@@ -131,7 +144,12 @@ class UpdatingWindow(CTkToplevel):
             chato_x = self.PROGRESSBAR_X + (progress * self.PROGRESSBAR_WIDTH)
             self.chato_delivering_img_label.place(x=chato_x)
             self.progressbar.set(progress)
-            self.vrct_update_process_text.configure(text=f"{int(progress * 100)}% ({values[0]//1000//1000}MB/{values[1]//1000//1000}MB)")
+
+            text = f"{int(progress * 100)}% ({values[0]//1000//1000}MB/{values[1]//1000//1000}MB)"
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
+            self.vrct_update_process_text.configure(
+                image=tk_image,
+            )
             self.update_idletasks()
 
         elif progress_type == "extracting":
@@ -146,25 +164,41 @@ class UpdatingWindow(CTkToplevel):
             chato_x = (self.PROGRESSBAR_X - 3) + (self.PROGRESSBAR_WIDTH - (progress * self.PROGRESSBAR_WIDTH))
             self.chato_unpackaging_img_label.place(x=chato_x)
             self.progressbar.set(1 - progress)
-            self.vrct_update_process_text.configure(text=f"{int(progress * 100)}% ({values[0]}/{values[1]})")
+
+            text = f"{int(progress * 100)}% ({values[0]}/{values[1]})"
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
+            self.vrct_update_process_text.configure(
+                image=tk_image,
+            )
             self.update_idletasks()
 
         elif progress_type == "restarting":
-            message = "Restarting"
+            main_text = "Restarting"
+            text = "     "
             for _ in range(5):
                 self.chato_unpackaging_img_label.place_forget()
-                self.vrct_update_process_text.configure(text=message)
+                tk_image = text_to_image(main_text+text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
+                self.vrct_update_process_text.configure(
+                    image=tk_image,
+                )
                 self.update_idletasks()
-                message = message + "."
+                text = "." + text[:-1]
                 time.sleep(1)
 
         elif progress_type == "error":
+            text="Error! Can't Update software."
             self.chato_unpackaging_img_label.place_forget()
-            self.vrct_update_process_text.configure(text="Error! Can't Update software.")
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
+            self.vrct_update_process_text.configure(
+                image=tk_image,
+            )
             self.update_idletasks()
             time.sleep(5)
-            self.chato_unpackaging_img_label.place_forget()
-            self.vrct_update_process_text.configure(text="Please download the latest version from the website.")
+            text="Please download the latest version from the website."
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
+            self.vrct_update_process_text.configure(
+                image=tk_image,
+            )
             self.update_idletasks()
             time.sleep(5)
 
