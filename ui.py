@@ -1,10 +1,20 @@
 import time
-from customtkinter import CTkImage, CTkLabel, CTkToplevel, CTkProgressBar, CTkFrame
+from customtkinter import CTkImage, CTkLabel, CTkProgressBar, CTkFrame, CTk
 from ui_utils import getImageFileFromUiUtils, setGeometryToCenterOfScreen, fadeInAnimation, generateGradientColor, getImagePath, getFontPath
 from PIL import ImageFont, ImageDraw, Image, ImageTk
 
-class UpdatingWindow(CTkToplevel):
-    def __init__(self, vrct_gui):
+def text_to_image(text:str, font:ImageFont, fg_color:str, bg_color:str):
+    image_width, image_height = 300, 12
+    image = Image.new("RGBA", (image_width, image_height), bg_color)
+    draw = ImageDraw.Draw(image)
+    bbox  = draw.textbbox((0, 0), text=text, font=font)
+    x = (image_width - bbox[2]) - 6
+    y = (image_height - bbox[3]) // 2
+    draw.text((x, y), text, font=font, fill=fg_color)
+    return ImageTk.PhotoImage(image)
+
+class UpdatingWindow(CTk):
+    def __init__(self):
         super().__init__()
         self.withdraw()
         self.overrideredirect(True)
@@ -16,8 +26,8 @@ class UpdatingWindow(CTkToplevel):
         BG_WIDTH= 300
         BG_HEIGHT= 350
         self.BG_HEX_COLOR = "#292a2d"
-        self.TEXT_HEX_COLOR = "#f2f2f2"
-        self.font = ImageFont.truetype(getFontPath('myFont.ttf'), 12)
+        self.TEXT_HEX_COLOR = "#78797d"
+        self.font = ImageFont.truetype(getFontPath('Inter_18pt-Regular.ttf'), 12)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -115,7 +125,7 @@ class UpdatingWindow(CTkToplevel):
             height=0,
             fg_color=self.BG_HEX_COLOR,
         )
-        self.vrct_update_process_text.place(x=150, y=280, anchor="center")
+        self.vrct_update_process_text.place(x=150, y=340, anchor="center")
 
     def updateDownloadProgress(self, values:list, progress_type:str):
         if progress_type == "downloading":
@@ -136,14 +146,7 @@ class UpdatingWindow(CTkToplevel):
             self.progressbar.set(progress)
 
             text = f"{int(progress * 100)}% ({values[0]//1000//1000}MB/{values[1]//1000//1000}MB)"
-            image_width, image_height = 300, 12
-            image = Image.new("RGBA", (image_width, image_height))
-            draw = ImageDraw.Draw(image)
-            bbox  = draw.textbbox((0, 0), text=text, font=self.font)
-            x = (image_width - bbox[2]) // 2
-            y = (image_height - bbox[3]) // 2
-            draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
-            tk_image = ImageTk.PhotoImage(image)
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
             self.vrct_update_process_text.configure(
                 image=tk_image,
             )
@@ -163,64 +166,36 @@ class UpdatingWindow(CTkToplevel):
             self.progressbar.set(1 - progress)
 
             text = f"{int(progress * 100)}% ({values[0]}/{values[1]})"
-            image_width, image_height = 300, 12
-            image = Image.new("RGBA", (image_width, image_height))
-            draw = ImageDraw.Draw(image)
-            bbox  = draw.textbbox((0, 0), text=text, font=self.font)
-            x = (image_width - bbox[2]) // 2
-            y = (image_height - bbox[3]) // 2
-            draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
-            tk_image = ImageTk.PhotoImage(image)
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
             self.vrct_update_process_text.configure(
                 image=tk_image,
             )
             self.update_idletasks()
 
         elif progress_type == "restarting":
-            text = "Restarting"
+            main_text = "Restarting"
+            text = "     "
             for _ in range(5):
                 self.chato_unpackaging_img_label.place_forget()
-                image_width, image_height = 300, 12
-                image = Image.new("RGBA", (image_width, image_height))
-                draw = ImageDraw.Draw(image)
-                bbox  = draw.textbbox((0, 0), text=text, font=self.font)
-                x = (image_width - bbox[2]) // 2
-                y = (image_height - bbox[3]) // 2
-                draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
-                tk_image = ImageTk.PhotoImage(image)
+                tk_image = text_to_image(main_text+text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
                 self.vrct_update_process_text.configure(
                     image=tk_image,
                 )
                 self.update_idletasks()
-                text = text + "."
+                text = "." + text[:-1]
                 time.sleep(1)
 
         elif progress_type == "error":
             text="Error! Can't Update software."
             self.chato_unpackaging_img_label.place_forget()
-            image_width, image_height = 300, 12
-            image = Image.new("RGBA", (image_width, image_height))
-            draw = ImageDraw.Draw(image)
-            bbox  = draw.textbbox((0, 0), text=text, font=self.font)
-            x = (image_width - bbox[2]) // 2
-            y = (image_height - bbox[3]) // 2
-            draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
-            tk_image = ImageTk.PhotoImage(image)
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
             self.vrct_update_process_text.configure(
                 image=tk_image,
             )
             self.update_idletasks()
             time.sleep(5)
             text="Please download the latest version from the website."
-            self.chato_unpackaging_img_label.place_forget()
-            image_width, image_height = 300, 12
-            image = Image.new("RGBA", (image_width, image_height))
-            draw = ImageDraw.Draw(image)
-            bbox  = draw.textbbox((0, 0), text=text, font=self.font)
-            x = (image_width - bbox[2]) // 2
-            y = (image_height - bbox[3]) // 2
-            draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
-            tk_image = ImageTk.PhotoImage(image)
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
             self.vrct_update_process_text.configure(
                 image=tk_image,
             )
