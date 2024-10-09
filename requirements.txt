@@ -2,3 +2,4 @@ customtkinter == 5.2.2
 requests == 2.32.2
 pillow == 10.4.0
 pyinstaller == 6.10.0
+psutil == 6.0.0

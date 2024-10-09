@@ -1,10 +1,10 @@
 from threading import Thread
-import customtkinter
+from customtkinter import CTk
 from update import update
 from ui import UpdatingWindow
 
 # ウィンドウの作成
-app = customtkinter.CTk()
+app = CTk()
 app.resizable(False, False)  # ウィンドウのサイズを固定
 app.overrideredirect(True)  # タイトルバーを非表示にする
 app.withdraw()  # ウィンドウを表示しない

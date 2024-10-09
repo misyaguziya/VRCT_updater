@@ -1,6 +1,7 @@
 import time
 from customtkinter import CTkImage, CTkLabel, CTkToplevel, CTkProgressBar, CTkFrame
-from ui_utils import getImageFileFromUiUtils, setGeometryToCenterOfScreen, fadeInAnimation, generateGradientColor, getImagePath
+from ui_utils import getImageFileFromUiUtils, setGeometryToCenterOfScreen, fadeInAnimation, generateGradientColor, getImagePath, getFontPath
+from PIL import ImageFont, ImageDraw, Image, ImageTk
 
 class UpdatingWindow(CTkToplevel):
     def __init__(self, vrct_gui):
@@ -15,6 +16,8 @@ class UpdatingWindow(CTkToplevel):
         BG_WIDTH= 300
         BG_HEIGHT= 350
         self.BG_HEX_COLOR = "#292a2d"
+        self.TEXT_HEX_COLOR = "#f2f2f2"
+        self.font = ImageFont.truetype(getFontPath('myFont.ttf'), 12)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -131,7 +134,19 @@ class UpdatingWindow(CTkToplevel):
             chato_x = self.PROGRESSBAR_X + (progress * self.PROGRESSBAR_WIDTH)
             self.chato_delivering_img_label.place(x=chato_x)
             self.progressbar.set(progress)
-            self.vrct_update_process_text.configure(text=f"{int(progress * 100)}% ({values[0]//1000//1000}MB/{values[1]//1000//1000}MB)")
+
+            text = f"{int(progress * 100)}% ({values[0]//1000//1000}MB/{values[1]//1000//1000}MB)"
+            image_width, image_height = 300, 12
+            image = Image.new("RGBA", (image_width, image_height))
+            draw = ImageDraw.Draw(image)
+            bbox  = draw.textbbox((0, 0), text=text, font=self.font)
+            x = (image_width - bbox[2]) // 2
+            y = (image_height - bbox[3]) // 2
+            draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
+            tk_image = ImageTk.PhotoImage(image)
+            self.vrct_update_process_text.configure(
+                image=tk_image,
+            )
             self.update_idletasks()
 
         elif progress_type == "extracting":
@@ -146,25 +161,69 @@ class UpdatingWindow(CTkToplevel):
             chato_x = (self.PROGRESSBAR_X - 3) + (self.PROGRESSBAR_WIDTH - (progress * self.PROGRESSBAR_WIDTH))
             self.chato_unpackaging_img_label.place(x=chato_x)
             self.progressbar.set(1 - progress)
-            self.vrct_update_process_text.configure(text=f"{int(progress * 100)}% ({values[0]}/{values[1]})")
+
+            text = f"{int(progress * 100)}% ({values[0]}/{values[1]})"
+            image_width, image_height = 300, 12
+            image = Image.new("RGBA", (image_width, image_height))
+            draw = ImageDraw.Draw(image)
+            bbox  = draw.textbbox((0, 0), text=text, font=self.font)
+            x = (image_width - bbox[2]) // 2
+            y = (image_height - bbox[3]) // 2
+            draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
+            tk_image = ImageTk.PhotoImage(image)
+            self.vrct_update_process_text.configure(
+                image=tk_image,
+            )
             self.update_idletasks()
 
         elif progress_type == "restarting":
-            message = "Restarting"
+            text = "Restarting"
             for _ in range(5):
                 self.chato_unpackaging_img_label.place_forget()
-                self.vrct_update_process_text.configure(text=message)
+                image_width, image_height = 300, 12
+                image = Image.new("RGBA", (image_width, image_height))
+                draw = ImageDraw.Draw(image)
+                bbox  = draw.textbbox((0, 0), text=text, font=self.font)
+                x = (image_width - bbox[2]) // 2
+                y = (image_height - bbox[3]) // 2
+                draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
+                tk_image = ImageTk.PhotoImage(image)
+                self.vrct_update_process_text.configure(
+                    image=tk_image,
+                )
                 self.update_idletasks()
-                message = message + "."
+                text = text + "."
                 time.sleep(1)
 
         elif progress_type == "error":
+            text="Error! Can't Update software."
             self.chato_unpackaging_img_label.place_forget()
-            self.vrct_update_process_text.configure(text="Error! Can't Update software.")
+            image_width, image_height = 300, 12
+            image = Image.new("RGBA", (image_width, image_height))
+            draw = ImageDraw.Draw(image)
+            bbox  = draw.textbbox((0, 0), text=text, font=self.font)
+            x = (image_width - bbox[2]) // 2
+            y = (image_height - bbox[3]) // 2
+            draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
+            tk_image = ImageTk.PhotoImage(image)
+            self.vrct_update_process_text.configure(
+                image=tk_image,
+            )
             self.update_idletasks()
             time.sleep(5)
+            text="Please download the latest version from the website."
             self.chato_unpackaging_img_label.place_forget()
-            self.vrct_update_process_text.configure(text="Please download the latest version from the website.")
+            image_width, image_height = 300, 12
+            image = Image.new("RGBA", (image_width, image_height))
+            draw = ImageDraw.Draw(image)
+            bbox  = draw.textbbox((0, 0), text=text, font=self.font)
+            x = (image_width - bbox[2]) // 2
+            y = (image_height - bbox[3]) // 2
+            draw.text((x, y), text, font=self.font, fill=(242, 242, 242))
+            tk_image = ImageTk.PhotoImage(image)
+            self.vrct_update_process_text.configure(
+                image=tk_image,
+            )
             self.update_idletasks()
             time.sleep(5)
 
