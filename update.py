@@ -74,7 +74,7 @@ def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
                 extracted_counter += 1
                 zf.extract(file_info, root_dir)
                 if isinstance(callback_extract, Callable):
-                    callback_extract([extracted_counter, total_files])
+                    callback_extract([extracted_counter+removed_counter, total_files])
                 # print(f"extracted {extracted_counter}/{extracted_files}")
 
 def init(callback_init=None):
@@ -87,9 +87,9 @@ def error(callback_error=None):
     webbrowser.open(BOOTH_URL)
 
 def restart(callback_restart=None):
+    subprocess.Popen(os.path.join(os.path.dirname(sys.executable), START_EXE_NAME))
     if isinstance(callback_restart, Callable):
         callback_restart()
-    subprocess.Popen(os.path.join(os.path.dirname(sys.executable), START_EXE_NAME))
 
 def quit(callback_quit=None):
     if isinstance(callback_quit, Callable):
