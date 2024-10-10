@@ -6,6 +6,9 @@ from ui import UpdatingWindow
 app = UpdatingWindow()
 app.showUpdatingWindow()
 
+def initCallback():
+    app.initPositionImages()
+
 def downloadCallback(values):
     app.updateDownloadProgress(values, "downloading")
 
@@ -25,6 +28,7 @@ def quitCallback():
 th_update = Thread(
     target=update,
     args=(
+        initCallback,
         downloadCallback,
         extractCallback,
         errorCallback,

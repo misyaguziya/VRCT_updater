@@ -50,7 +50,6 @@ class UpdatingWindow(CTk):
             image=CTkImage(self.downloading_unpackaging_d, size=(self.downloading_unpackaging_d.width, self.downloading_unpackaging_d.height))
         )
 
-
         self.downloading_unpackaging_u = getImageFileFromUiUtils("downloading_unpackaging_u.png")
         self.downloading_unpackaging_u_label = CTkLabel(
             self.updating_background,
@@ -60,9 +59,7 @@ class UpdatingWindow(CTk):
             image=CTkImage(self.downloading_unpackaging_u, size=(self.downloading_unpackaging_u.width, self.downloading_unpackaging_u.height))
         )
 
-
         self.unpackage_img = getImageFileFromUiUtils("unpackage_icon.png")
-
         self.unpackage_img_label = CTkLabel(
             self.updating_background,
             text=None,
@@ -70,7 +67,6 @@ class UpdatingWindow(CTk):
             fg_color=self.BG_HEX_COLOR,
             image=CTkImage(self.unpackage_img, size=(self.unpackage_img.width, self.unpackage_img.height))
         )
-
 
         self.progressbar = CTkProgressBar(
             self.updating_background,
@@ -80,12 +76,8 @@ class UpdatingWindow(CTk):
             fg_color=self.BG_HEX_COLOR,
             progress_color=self.BG_HEX_COLOR,
         )
-        self.progressbar.set(0)
-        self.progressbar.place(x=self.PROGRESSBAR_X, y=self.PROGRESSBAR_Y, anchor="nw")
-
 
         self.chato_delivering_img = getImageFileFromUiUtils("chato_delivering.png")
-
         self.chato_delivering_img_label = CTkLabel(
             self.updating_background,
             text=None,
@@ -93,11 +85,8 @@ class UpdatingWindow(CTk):
             fg_color=self.BG_HEX_COLOR,
             image=CTkImage(self.chato_delivering_img, size=(self.chato_delivering_img.width, self.chato_delivering_img.height))
         )
-        self.chato_delivering_img_label.place(x=-30, y=self.PROGRESSBAR_Y - 1, anchor="s")
-
 
         self.chato_unpackaging_img = getImageFileFromUiUtils("chato_unpackaging.png")
-
         self.chato_unpackaging_img_label = CTkLabel(
             self.updating_background,
             text=None,
@@ -105,11 +94,8 @@ class UpdatingWindow(CTk):
             fg_color=self.BG_HEX_COLOR,
             image=CTkImage(self.chato_unpackaging_img, size=(self.chato_unpackaging_img.width, self.chato_unpackaging_img.height))
         )
-        self.chato_unpackaging_img_label.place(x=-30, y=self.PROGRESSBAR_Y + self.PROGRESSBAR_HEIGHT + 1, anchor="n")
-
 
         self.vrct_update_process_img = getImageFileFromUiUtils("vrct_update_process.png")
-
         self.vrct_update_process_img_label = CTkLabel(
             self.updating_background,
             text=None,
@@ -117,7 +103,6 @@ class UpdatingWindow(CTk):
             fg_color=self.BG_HEX_COLOR,
             image=CTkImage(self.vrct_update_process_img, size=(self.vrct_update_process_img.width, self.vrct_update_process_img.height))
         )
-        self.vrct_update_process_img_label.place(x=150, y=300, anchor="center")
 
         self.vrct_update_process_text = CTkLabel(
             self.updating_background,
@@ -125,6 +110,18 @@ class UpdatingWindow(CTk):
             height=0,
             fg_color=self.BG_HEX_COLOR,
         )
+
+    def initPositionImages(self):
+        self.is_showed_downloading_process = False
+        self.is_showed_unpackaging_process = False
+        self.downloading_unpackaging_d_label.place_forget()
+        self.downloading_unpackaging_u_label.place_forget()
+        self.unpackage_img_label.place_forget()
+        self.progressbar.set(0)
+        self.progressbar.place(x=self.PROGRESSBAR_X, y=self.PROGRESSBAR_Y, anchor="nw")
+        self.chato_delivering_img_label.place(x=-30, y=self.PROGRESSBAR_Y - 1, anchor="s")
+        self.chato_unpackaging_img_label.place(x=-30, y=self.PROGRESSBAR_Y + self.PROGRESSBAR_HEIGHT + 1, anchor="n")
+        self.vrct_update_process_img_label.place(x=150, y=300, anchor="center")
         self.vrct_update_process_text.place(x=150, y=340, anchor="center")
 
     def updateDownloadProgress(self, values:list, progress_type:str):

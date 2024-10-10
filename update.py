@@ -24,10 +24,9 @@ DELETION_FILES = ["VRCT.exe", "backend.exe", "_internal"]
 def taskKill():
     for proc in psutil.process_iter(['pid', 'name']):
         try:
-            # プロセス名が一致する場合に終了
             if proc.info['name'] == START_EXE_NAME:
-                proc.terminate()  # プロセスの終了を試みる
-                proc.wait()  # 終了を待機
+                proc.terminate()
+                proc.wait()
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
@@ -78,6 +77,10 @@ def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
                     callback_extract([extracted_counter, total_files])
                 # print(f"extracted {extracted_counter}/{extracted_files}")
 
+def init(callback_init=None):
+    if isinstance(callback_init, Callable):
+        callback_init()
+
 def error(callback_error=None):
     if isinstance(callback_error, Callable):
         callback_error()
@@ -92,12 +95,13 @@ def quit(callback_quit=None):
     if isinstance(callback_quit, Callable):
         callback_quit()
 
-def update(callback_download=None, callback_extract=None, callback_error=None, callback_restart=None, callback_quit=None):
+def update(callback_init=None, callback_download=None, callback_extract=None, callback_error=None, callback_restart=None, callback_quit=None):
     # task kill update program
     taskKill()
     # try update VRCT at most 5 times
     for i in range(5):
         try:
+            init(callback_init)
             root_dir = os.path.dirname(sys.executable)
             updateProcess(GITHUB_URL, root_dir, callback_download, callback_extract)
             restart(callback_restart)
