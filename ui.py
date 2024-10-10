@@ -144,13 +144,13 @@ class UpdatingWindow(CTk):
             self.chato_delivering_img_label.place(x=chato_x)
             self.progressbar.set(progress)
 
-            if self.vrct_update_process_text_value != int(values[0] / values[1] * 100):
+            if self.vrct_update_process_text_value != int(progress * 100):
                 text = f"{int(progress * 100)}% ({values[0]//1000//1000}MB/{values[1]//1000//1000}MB)"
                 tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR)
                 self.vrct_update_process_text.configure(
                     image=tk_image,
                 )
-                self.vrct_update_process_text_value = int(values[0] / values[1] * 100)
+                self.vrct_update_process_text_value = int(progress * 100)
             self.update_idletasks()
 
         elif progress_type == "extracting":
@@ -167,13 +167,13 @@ class UpdatingWindow(CTk):
             self.chato_unpackaging_img_label.place(x=chato_x)
             self.progressbar.set(1 - progress)
 
-            if self.vrct_update_process_text_value != int(values[0] / values[1] * 100):
+            if self.vrct_update_process_text_value != int(progress* 100):
                 text = f"{int(progress * 100)}% ({values[0]}/{values[1]})"
                 tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR)
                 self.vrct_update_process_text.configure(
                     image=tk_image,
                 )
-                self.vrct_update_process_text_value = int(values[0] / values[1] * 100)
+                self.vrct_update_process_text_value = int(progress * 100)
             self.update_idletasks()
 
         elif progress_type == "restarting":
