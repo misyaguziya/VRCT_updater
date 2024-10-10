@@ -110,6 +110,7 @@ class UpdatingWindow(CTk):
             height=0,
             fg_color=self.BG_HEX_COLOR,
         )
+        self.vrct_update_process_text_value = None
 
     def initPositionImages(self):
         self.is_showed_downloading_process = False
@@ -129,6 +130,7 @@ class UpdatingWindow(CTk):
             progress = values[0] / values[1]
             if self.is_showed_downloading_process is False:
                 self.downloading_unpackaging_d_label.place(x=50, y=56, anchor="nw")
+                self.vrct_update_process_text_value = None
                 self.is_showed_downloading_process = True
 
             fg_color = generateGradientColor(
@@ -142,11 +144,13 @@ class UpdatingWindow(CTk):
             self.chato_delivering_img_label.place(x=chato_x)
             self.progressbar.set(progress)
 
-            text = f"{int(progress * 100)}% ({values[0]//1000//1000}MB/{values[1]//1000//1000}MB)"
-            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR)
-            self.vrct_update_process_text.configure(
-                image=tk_image,
-            )
+            if self.vrct_update_process_text_value != int(values[0] / values[1] * 100):
+                text = f"{int(progress * 100)}% ({values[0]//1000//1000}MB/{values[1]//1000//1000}MB)"
+                tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR)
+                self.vrct_update_process_text.configure(
+                    image=tk_image,
+                )
+                self.vrct_update_process_text_value = int(values[0] / values[1] * 100)
             self.update_idletasks()
 
         elif progress_type == "extracting":
@@ -156,17 +160,20 @@ class UpdatingWindow(CTk):
                 self.downloading_unpackaging_u_label.place(x=50, y=56, anchor="nw")
                 self.unpackage_img_label.place(x=130, y=174, anchor="nw")
                 self.progressbar.configure(fg_color=self.BG_HEX_COLOR, progress_color="#4B4C4F")
+                self.vrct_update_process_text_value = None
                 self.is_showed_unpackaging_process = True
 
             chato_x = (self.PROGRESSBAR_X - 3) + (self.PROGRESSBAR_WIDTH - (progress * self.PROGRESSBAR_WIDTH))
             self.chato_unpackaging_img_label.place(x=chato_x)
             self.progressbar.set(1 - progress)
 
-            text = f"{int(progress * 100)}% ({values[0]}/{values[1]})"
-            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR)
-            self.vrct_update_process_text.configure(
-                image=tk_image,
-            )
+            if self.vrct_update_process_text_value != int(values[0] / values[1] * 100):
+                text = f"{int(progress * 100)}% ({values[0]}/{values[1]})"
+                tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR)
+                self.vrct_update_process_text.configure(
+                    image=tk_image,
+                )
+                self.vrct_update_process_text_value = int(values[0] / values[1] * 100)
             self.update_idletasks()
 
         elif progress_type == "restarting":
