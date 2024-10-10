@@ -47,20 +47,9 @@ def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
                     callback_download([total_chunk, file_size])
                 # print(f"downloaded {total_chunk}/{file_size}")
 
-        with ZipFile(os.path.join(tmp_path, DOWNLOAD_FILENAME)) as zf:
-            extracted_files = len(zf.infolist())
-            removed_files = len(DELETION_FILES)
-            total_files = extracted_files + removed_files
-
         # 旧ファイルの削除
-        removed_counter = 0
         for file in os.listdir(root_dir):
             if file in DELETION_FILES:
-                if isinstance(callback_extract, Callable):
-                    removed_counter += 1
-                    callback_extract([removed_counter, total_files])
-                # print(f"removeFiles {removed_counter}/{removed_files}")
-
                 path = os.path.join(root_dir, file)
                 if os.path.isdir(path):
                     shutil.rmtree(path)
@@ -70,12 +59,12 @@ def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
         # ファイルの解凍
         with ZipFile(os.path.join(tmp_path, DOWNLOAD_FILENAME)) as zf:
             extracted_counter = 0
+            extracted_files = len(zf.infolist())
             for file_info in zf.infolist():
                 extracted_counter += 1
                 zf.extract(file_info, root_dir)
                 if isinstance(callback_extract, Callable):
-                    callback_extract([extracted_counter+removed_counter, total_files])
-                # print(f"extracted {extracted_counter}/{extracted_files}")
+                    callback_extract([extracted_counter, extracted_files])
 
 def init(callback_init=None):
     if isinstance(callback_init, Callable):
