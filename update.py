@@ -5,9 +5,10 @@ import shutil
 import tempfile
 import webbrowser
 from zipfile import ZipFile
-from subprocess import Popen
+import subprocess
 from typing import Callable
 import requests
+import psutil
 
 # fille name
 DOWNLOAD_FILENAME = 'VRCT.zip'
@@ -21,7 +22,13 @@ BOOTH_URL = "https://misyaguziya.booth.pm/"
 DELETION_FILES = ["VRCT.exe", "backend.exe", "_internal"]
 
 def taskKill():
-    os.system(f"taskkill /F /IM {START_EXE_NAME}")
+    for proc in psutil.process_iter(['pid', 'name']):
+        try:
+            if proc.info['name'] == START_EXE_NAME:
+                proc.terminate()
+                proc.wait()
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
 
 def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
     res = requests.get(url)
@@ -70,6 +77,10 @@ def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
                     callback_extract([extracted_counter, total_files])
                 # print(f"extracted {extracted_counter}/{extracted_files}")
 
+def init(callback_init=None):
+    if isinstance(callback_init, Callable):
+        callback_init()
+
 def error(callback_error=None):
     if isinstance(callback_error, Callable):
         callback_error()
@@ -78,18 +89,19 @@ def error(callback_error=None):
 def restart(callback_restart=None):
     if isinstance(callback_restart, Callable):
         callback_restart()
-    Popen(os.path.join(os.path.dirname(sys.executable), START_EXE_NAME))
+    subprocess.Popen(os.path.join(os.path.dirname(sys.executable), START_EXE_NAME))
 
 def quit(callback_quit=None):
     if isinstance(callback_quit, Callable):
         callback_quit()
 
-def update(callback_download=None, callback_extract=None, callback_error=None, callback_restart=None, callback_quit=None):
+def update(callback_init=None, callback_download=None, callback_extract=None, callback_error=None, callback_restart=None, callback_quit=None):
     # task kill update program
     taskKill()
     # try update VRCT at most 5 times
     for i in range(5):
         try:
+            init(callback_init)
             root_dir = os.path.dirname(sys.executable)
             updateProcess(GITHUB_URL, root_dir, callback_download, callback_extract)
             restart(callback_restart)

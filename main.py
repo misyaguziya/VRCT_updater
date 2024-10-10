@@ -1,28 +1,25 @@
 from threading import Thread
-import customtkinter
 from update import update
 from ui import UpdatingWindow
 
 # ウィンドウの作成
-app = customtkinter.CTk()
-app.resizable(False, False)  # ウィンドウのサイズを固定
-app.overrideredirect(True)  # タイトルバーを非表示にする
-app.withdraw()  # ウィンドウを表示しない
+app = UpdatingWindow()
+app.showUpdatingWindow()
 
-updating_window = UpdatingWindow(vrct_gui=app)
-updating_window.showUpdatingWindow()
+def initCallback():
+    app.initPositionImages()
 
 def downloadCallback(values):
-    updating_window.updateDownloadProgress(values, "downloading")
+    app.updateDownloadProgress(values, "downloading")
 
 def extractCallback(values):
-    updating_window.updateDownloadProgress(values, "extracting")
+    app.updateDownloadProgress(values, "extracting")
 
 def errorCallback():
-    updating_window.updateDownloadProgress([], "error")
+    app.updateDownloadProgress([], "error")
 
 def restartCallback():
-    updating_window.updateDownloadProgress([], "restarting")
+    app.updateDownloadProgress([], "restarting")
 
 def quitCallback():
     app.quit()
@@ -31,6 +28,7 @@ def quitCallback():
 th_update = Thread(
     target=update,
     args=(
+        initCallback,
         downloadCallback,
         extractCallback,
         errorCallback,
