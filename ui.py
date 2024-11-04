@@ -186,16 +186,16 @@ class UpdatingWindow(CTk):
             self.update_idletasks()
 
         elif progress_type == "error":
-            text="Error! Can't Update software."
+            text="Error! Can't Update software"
             self.chato_unpackaging_img_label.place_forget()
-            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR)
             self.vrct_update_process_text.configure(
                 image=tk_image,
             )
             self.update_idletasks()
             time.sleep(5)
-            text="Please download the latest version from the website."
-            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR, self.BG_HEX_COLOR)
+            text="Please download the latest version from the website"
+            tk_image = text_to_image(text, self.font, self.TEXT_HEX_COLOR)
             self.vrct_update_process_text.configure(
                 image=tk_image,
             )

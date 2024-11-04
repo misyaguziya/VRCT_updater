@@ -16,8 +16,8 @@ DOWNLOAD_CUDA_FILENAME = 'VRCT_cuda.zip'
 START_EXE_NAME = 'VRCT.exe'
 
 # ファイルのダウンロード
-GITHUB_URL = "https://api.github.com/repos/misyaguziya/VRCT/releases/latest"
-BOOTH_URL = "https://misyaguziya.booth.pm/"
+GITHUB_API_URL = "https://api.github.com/repos/misyaguziya/VRCT/releases/latest"
+GITHUB_URL = "https://github.com/misyaguziya/VRCT/releases/latest"
 
 # 削除するファイル
 DELETION_FILES = ["VRCT.exe", "backend.exe", "_internal"]
@@ -80,7 +80,7 @@ def init(callback_init=None):
 def error(callback_error=None):
     if isinstance(callback_error, Callable):
         callback_error()
-    webbrowser.open(BOOTH_URL)
+    webbrowser.open(GITHUB_URL)
 
 def restart(callback_restart=None):
     subprocess.Popen(os.path.join(os.path.dirname(sys.executable), START_EXE_NAME))
@@ -99,7 +99,7 @@ def update(cuda=False, callback_init=None, callback_download=None, callback_extr
         try:
             init(callback_init)
             root_dir = os.path.dirname(sys.executable)
-            updateProcess(GITHUB_URL, root_dir, cuda, callback_download, callback_extract)
+            updateProcess(GITHUB_API_URL, root_dir, cuda, callback_download, callback_extract)
             restart(callback_restart)
             break
         except Exception:
@@ -114,4 +114,4 @@ def update(cuda=False, callback_init=None, callback_download=None, callback_extr
 if __name__ == '__main__':
     root_dir = os.path.dirname(sys.executable)
 
-    updateProcess(GITHUB_URL, root_dir, False, lambda x: print(f"downloaded {x[0]}/{x[1]}"), lambda x: print(f"extracted {x[0]}/{x[1]}%"))
+    updateProcess(GITHUB_API_URL, root_dir, False, lambda x: print(f"downloaded {x[0]}/{x[1]}"), lambda x: print(f"extracted {x[0]}/{x[1]}%"))
