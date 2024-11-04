@@ -1,6 +1,11 @@
+import argparse
 from threading import Thread
 from update import update
 from ui import UpdatingWindow
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--cuda", action="store_true")
+args = parser.parse_args()
 
 # ウィンドウの作成
 app = UpdatingWindow()
@@ -28,6 +33,7 @@ def quitCallback():
 th_update = Thread(
     target=update,
     args=(
+        args.cuda,
         initCallback,
         downloadCallback,
         extractCallback,
