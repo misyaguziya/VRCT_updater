@@ -12,6 +12,7 @@ import psutil
 
 # fille name
 DOWNLOAD_FILENAME = 'VRCT.zip'
+DOWNLOAD_CUDA_FILENAME = 'VRCT_cuda.zip'
 START_EXE_NAME = 'VRCT.exe'
 
 # ファイルのダウンロード
@@ -30,16 +31,22 @@ def taskKill():
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
-def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
+def updateProcess(url, root_dir, cuda=False, callback_download=None, callback_extract=None):
     res = requests.get(url)
     assets = res.json()['assets']
-    url = [i["browser_download_url"] for i in assets if i["name"] == DOWNLOAD_FILENAME][0]
+
+    if cuda is True:
+        filename = DOWNLOAD_CUDA_FILENAME
+    else:
+        filename = DOWNLOAD_FILENAME
+
+    url = [i["browser_download_url"] for i in assets if i["name"] == filename][0]
     with tempfile.TemporaryDirectory() as tmp_path:
         # ファイルのダウンロード
         res = requests.get(url, stream=True)
         file_size = int(res.headers.get('content-length', 0))
         total_chunk = 0
-        with open(os.path.join(tmp_path, DOWNLOAD_FILENAME), 'wb') as file:
+        with open(os.path.join(tmp_path, filename), 'wb') as file:
             for chunk in res.iter_content(chunk_size=1024*1000):
                 file.write(chunk)
                 total_chunk += len(chunk)
@@ -57,7 +64,7 @@ def updateProcess(url, root_dir, callback_download=None, callback_extract=None):
                     os.remove(path)
 
         # ファイルの解凍
-        with ZipFile(os.path.join(tmp_path, DOWNLOAD_FILENAME)) as zf:
+        with ZipFile(os.path.join(tmp_path, filename)) as zf:
             extracted_counter = 0
             extracted_files = len(zf.infolist())
             for file_info in zf.infolist():
@@ -84,7 +91,7 @@ def quit(callback_quit=None):
     if isinstance(callback_quit, Callable):
         callback_quit()
 
-def update(callback_init=None, callback_download=None, callback_extract=None, callback_error=None, callback_restart=None, callback_quit=None):
+def update(cuda=False, callback_init=None, callback_download=None, callback_extract=None, callback_error=None, callback_restart=None, callback_quit=None):
     # task kill update program
     taskKill()
     # try update VRCT at most 5 times
@@ -92,7 +99,7 @@ def update(callback_init=None, callback_download=None, callback_extract=None, ca
         try:
             init(callback_init)
             root_dir = os.path.dirname(sys.executable)
-            updateProcess(GITHUB_URL, root_dir, callback_download, callback_extract)
+            updateProcess(GITHUB_URL, root_dir, cuda, callback_download, callback_extract)
             restart(callback_restart)
             break
         except Exception:
@@ -107,4 +114,4 @@ def update(callback_init=None, callback_download=None, callback_extract=None, ca
 if __name__ == '__main__':
     root_dir = os.path.dirname(sys.executable)
 
-    updateProcess(GITHUB_URL, root_dir, lambda x: print(f"downloaded {x[0]}/{x[1]}"), lambda x: print(f"extracted {x[0]}/{x[1]}%"))
+    updateProcess(GITHUB_URL, root_dir, False, lambda x: print(f"downloaded {x[0]}/{x[1]}"), lambda x: print(f"extracted {x[0]}/{x[1]}%"))
