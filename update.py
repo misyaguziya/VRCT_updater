@@ -14,18 +14,19 @@ import psutil
 DOWNLOAD_FILENAME = 'VRCT.zip'
 DOWNLOAD_CUDA_FILENAME = 'VRCT_cuda.zip'
 START_EXE_NAME = 'VRCT.exe'
+BACKEND_EXE_NAME = 'VRCT-sidecar.exe'
 
 # ファイルのダウンロード
 GITHUB_API_URL = "https://api.github.com/repos/misyaguziya/VRCT/releases/latest"
 GITHUB_URL = "https://github.com/misyaguziya/VRCT/releases/latest"
 
 # 削除するファイル
-DELETION_FILES = ["VRCT.exe", "backend.exe", "_internal"]
+DELETION_FILES = [START_EXE_NAME, BACKEND_EXE_NAME, "_internal"]
 
 def taskKill():
     for proc in psutil.process_iter(['pid', 'name']):
         try:
-            if proc.info['name'] == START_EXE_NAME:
+            if proc.info['name'] == START_EXE_NAME or proc.info['name'] == BACKEND_EXE_NAME:
                 proc.terminate()
                 proc.wait()
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
