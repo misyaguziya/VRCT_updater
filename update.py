@@ -17,7 +17,7 @@ START_EXE_NAME = 'VRCT.exe'
 BACKEND_EXE_NAME = 'VRCT-sidecar.exe'
 
 # ファイルのダウンロード
-GITHUB_API_URL = "https://api.github.com/repos/misyaguziya/VRCT/releases/latest"
+HAGGING_FACE_RESOLVE_URL = "https://huggingface.co/misyaguziya/VRCT/resolve/main"
 GITHUB_URL = "https://github.com/misyaguziya/VRCT/releases/latest"
 
 # 削除するファイル
@@ -32,16 +32,13 @@ def taskKill():
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
-def updateProcess(url, root_dir, cuda=False, callback_download=None, callback_extract=None):
-    res = requests.get(url)
-    assets = res.json()['assets']
-
+def updateProcess(root_dir, cuda=False, callback_download=None, callback_extract=None):
     if cuda is True:
         filename = DOWNLOAD_CUDA_FILENAME
     else:
         filename = DOWNLOAD_FILENAME
 
-    url = [i["browser_download_url"] for i in assets if i["name"] == filename][0]
+    url = f"{HAGGING_FACE_RESOLVE_URL}/{filename}"
     with tempfile.TemporaryDirectory() as tmp_path:
         # ファイルのダウンロード
         res = requests.get(url, stream=True)
@@ -100,7 +97,7 @@ def update(cuda=False, callback_init=None, callback_download=None, callback_extr
         try:
             init(callback_init)
             root_dir = os.path.dirname(sys.executable)
-            updateProcess(GITHUB_API_URL, root_dir, cuda, callback_download, callback_extract)
+            updateProcess(root_dir, cuda, callback_download, callback_extract)
             restart(callback_restart)
             break
         except Exception:
@@ -115,4 +112,4 @@ def update(cuda=False, callback_init=None, callback_download=None, callback_extr
 if __name__ == '__main__':
     root_dir = os.path.dirname(sys.executable)
 
-    updateProcess(GITHUB_API_URL, root_dir, False, lambda x: print(f"downloaded {x[0]}/{x[1]}"), lambda x: print(f"extracted {x[0]}/{x[1]}%"))
+    updateProcess(root_dir, False, lambda x: print(f"downloaded {x[0]}/{x[1]}"), lambda x: print(f"extracted {x[0]}/{x[1]}%"))
