@@ -17,7 +17,7 @@ START_EXE_NAME = 'VRCT.exe'
 BACKEND_EXE_NAME = 'VRCT-sidecar.exe'
 
 # ファイルのダウンロード
-HAGGING_FACE_RESOLVE_URL = "https://huggingface.co/misyaguziya/VRCT/resolve/main"
+HAGGING_FACE_RESOLVE_URL = "https://huggingface.co/ms-software/VRCT/resolve/main"
 GITHUB_URL = "https://github.com/misyaguziya/VRCT/releases/latest"
 
 # 削除するファイル
